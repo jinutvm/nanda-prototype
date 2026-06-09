@@ -60,9 +60,6 @@ bash scripts/start.sh
 python3 client/resolve.py @translation-agent
 python3 client/resolve.py @weather-agent
 
-# Tamper demo: client detects a modified facts payload
-python3 client/resolve.py @translation-agent --tamper-demo
-
 # Stop servers
 bash scripts/stop.sh
 ```
