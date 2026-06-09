@@ -86,11 +86,22 @@ def register(req: RegisterRequest):
 @app.get("/resolve/{agent_name:path}")
 def resolve(agent_name: str, request: Request):
     row = db.get_agent(agent_name)
+    delegated_name = None
+
+    if not row and ":" in agent_name.lstrip("@"):
+        parent = "@" + agent_name.lstrip("@").split(":")[0]
+        row = db.get_agent(parent)
+        if row:
+            delegated_name = agent_name
+
     if not row:
         raise HTTPException(status_code=404, detail="agent not found")
     client_hint = request.headers.get("x-client-hint")
     db.log_resolution(agent_name, client_hint)
-    addr = _agent_addr(row, extra={"resolved_at": _now()})
+    if delegated_name:
+        addr = _agent_addr(row, extra={"resolved_at": _now(), "delegated_name": delegated_name})
+    else:
+        addr = _agent_addr(row, extra={"resolved_at": _now()})
     signature = crypto.sign(addr, _private_key)
     return {**addr, "index_signature": signature}
 
