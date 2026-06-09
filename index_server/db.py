@@ -51,10 +51,28 @@ def init_db() -> None:
         """)
 
 
+def _id_namespace(agent_name: str) -> str:
+    """Derive namespace prefix from raw agent_name.
+
+    @acme:  (trailing colon = namespace entry) → acme
+    @acme:support-agent                        → acme
+    @translation-agent                         → nanda
+    """
+    name = agent_name.lstrip("@")
+    if name.endswith(":"):
+        return name[:-1]
+    if ":" in name:
+        return name.split(":")[0]
+    return "nanda"
+
+
 def register_agent(agent_data: dict) -> dict:
     """Insert a new agent row. Returns the full record as a dict."""
     now = _now()
-    agent_id = f"nanda:{uuid4()}"
+    raw_name = agent_data["agent_name"]
+    agent_id = f"{_id_namespace(raw_name)}:{uuid4()}"
+    # Normalise: @acme: → @acme (strip trailing colon used only to signal namespace)
+    agent_data = {**agent_data, "agent_name": raw_name.rstrip(":")}
     row = {
         "id":                    agent_id,
         "agent_name":            agent_data["agent_name"],

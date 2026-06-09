@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException
 from shared import crypto
 
 FACTS_DIR = Path(__file__).parent / "facts"
-AGENTS = ["support-agent"]
+AGENTS = ["support-agent", "call-agent"]
 
 # slug → { "facts": <signed dict>, "public_key_pem": <str> }
 _cache: dict[str, dict] = {}
@@ -49,6 +49,8 @@ def _load_and_sign(slug: str) -> tuple[dict, str]:
 async def lifespan(app: FastAPI):
     global _enterprise_private_key, _enterprise_public_key_pem
     key_name = "enterprise-support-agent"
+    if not crypto._private_path(key_name).exists():
+        crypto.generate_ed25519_keypair(key_name)
     _enterprise_private_key = crypto.load_private_key(key_name)
     _enterprise_public_key_pem = crypto._public_path(key_name).read_text()
     for slug in AGENTS:

@@ -23,3 +23,4 @@ stop_pid_file() {
 
 stop_pid_file "$ROOT/logs/index_server.pid"       "index_server"       5001
 stop_pid_file "$ROOT/logs/agent_facts_server.pid" "agent_facts_server" 5002
+stop_pid_file "$ROOT/logs/enterprise_registry.pid" "enterprise_registry" 5003

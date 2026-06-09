@@ -75,7 +75,7 @@ def health():
 
 @app.post("/register", status_code=201)
 def register(req: RegisterRequest):
-    if db.get_agent(req.agent_name):
+    if db.get_agent(req.agent_name.rstrip(":")):
         raise HTTPException(status_code=409, detail="agent already registered")
     row = db.register_agent(req.model_dump())
     addr = _agent_addr(row)

@@ -30,6 +30,7 @@ kill_port() {
 
 kill_port 5001
 kill_port 5002
+kill_port 5003
 
 # ── Step 1: Start servers ─────────────────────────────────────────────────────
 sep "Step 1 · Starting servers"
@@ -48,8 +49,15 @@ python3 -m uvicorn agent_facts_server.app:app \
 FACTS_PID=$!
 ok "agent_facts_server started  (pid $FACTS_PID)  → logs/agent_facts_server.log"
 
-echo "$INDEX_PID" > "$ROOT/logs/index_server.pid"
-echo "$FACTS_PID" > "$ROOT/logs/agent_facts_server.pid"
+python3 -m uvicorn enterprise_registry.app:app \
+  --host 0.0.0.0 --port 5003 --log-level warning \
+  >> "$ROOT/logs/enterprise_registry.log" 2>&1 &
+ENTERPRISE_PID=$!
+ok "enterprise_registry started  (pid $ENTERPRISE_PID)  → logs/enterprise_registry.log"
+
+echo "$INDEX_PID"      > "$ROOT/logs/index_server.pid"
+echo "$FACTS_PID"      > "$ROOT/logs/agent_facts_server.pid"
+echo "$ENTERPRISE_PID" > "$ROOT/logs/enterprise_registry.pid"
 
 # ── Step 2: Health checks ─────────────────────────────────────────────────────
 sep "Step 2 · Health checks"
@@ -69,6 +77,7 @@ wait_for() {
 
 wait_for "http://localhost:5001/health" "index_server"
 wait_for "http://localhost:5002/health" "agent_facts_server"
+wait_for "http://localhost:5003/health" "enterprise_registry"
 
 echo
 cmd "curl http://localhost:5001/health"
@@ -77,6 +86,10 @@ curl -s http://localhost:5001/health | python3 -m json.tool
 echo
 cmd "curl http://localhost:5002/health"
 curl -s http://localhost:5002/health | python3 -m json.tool
+
+echo
+cmd "curl http://localhost:5003/health"
+curl -s http://localhost:5003/health | python3 -m json.tool
 
 # ── Step 3: Agent list ────────────────────────────────────────────────────────
 sep "Step 3 · Agent list (before registration)"
@@ -109,6 +122,13 @@ register_agent "@translation-agent" \
 register_agent "@weather-agent" \
   "http://localhost:5002/agents/weather-agent/facts"
 
+register_agent "@acme:" \
+  "http://localhost:5003/resolve"
+
+register_agent "@acme:support-agent" \
+  "http://localhost:5003/agents/support-agent/facts"
+
+
 # ── Step 5: Register tampered variant ────────────────────────────────────────
 sep "Step 5 · Registering @translation-agent-tampered"
 register_agent "@translation-agent-tampered" \
@@ -138,4 +158,5 @@ echo
 ok "Servers are running. To stop: bash scripts/stop.sh"
 echo -e "  index_server       →  http://localhost:5001"
 echo -e "  agent_facts_server →  http://localhost:5002"
+echo -e "  enterprise_registry →  http://localhost:5003"
 echo

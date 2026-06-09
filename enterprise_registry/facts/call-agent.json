@@ -1,0 +1,44 @@
+{
+  "@context": "https://nanda.agenticnet.org/schemas/agent-facts/v1",
+  "id": "enterprise:acme:call-agent",
+  "agent_name": "urn:agent:acme:call-agent",
+  "label": "ACME Call Agent",
+  "description": "Enterprise voice call handling and routing agent",
+  "version": "1.0.0",
+  "provider": {
+    "name": "ACME Corp",
+    "url": "http://localhost:5003"
+  },
+  "endpoints": {
+    "static": ["http://localhost:5003/agents/call-agent/invoke"]
+  },
+  "capabilities": {
+    "modalities": ["text", "audio"],
+    "streaming": true,
+    "batch": false,
+    "authentication": {
+      "methods": ["jwt"]
+    }
+  },
+  "skills": [
+    {
+      "id": "call-routing",
+      "description": "Route inbound calls to the appropriate department or agent",
+      "inputModes": ["audio", "text"],
+      "outputModes": ["audio", "text"]
+    },
+    {
+      "id": "call-transcription",
+      "description": "Transcribe and summarise call content in real time",
+      "inputModes": ["audio"],
+      "outputModes": ["text"]
+    }
+  ],
+  "certification": {
+    "level": "verified",
+    "issuer": "NANDA Demo Authority",
+    "issuanceDate": "2025-06-09T00:00:00Z",
+    "expirationDate": "2026-06-09T00:00:00Z"
+  },
+  "ttl": 3600
+}
