@@ -1,0 +1,47 @@
+{
+  "@context": "https://nanda.agenticnet.org/schemas/agent-facts/v1",
+  "id": "nanda:agent-translation-001",
+  "agent_name": "urn:agent:nanda:translation-agent",
+  "label": "Translation Agent",
+  "description": "Real-time multilingual translation agent",
+  "version": "1.0.0",
+  "provider": {
+    "name": "NANDA Demo",
+    "url": "http://localhost:5002"
+  },
+  "endpoints": {
+    "static": ["http://localhost:5002/agents/translation-agent/invoke"]
+  },
+  "capabilities": {
+    "modalities": ["text", "audio"],
+    "streaming": true,
+    "batch": false,
+    "authentication": {
+      "methods": ["none"]
+    }
+  },
+  "skills": [
+    {
+      "id": "translation",
+      "description": "Real-time translation between 25+ languages",
+      "inputModes": ["text", "audio"],
+      "outputModes": ["text"],
+      "supportedLanguages": ["en", "es", "fr", "de", "ja", "zh"],
+      "latencyBudgetMs": 300
+    },
+    {
+      "id": "summarisation",
+      "description": "Abstractive summarisation",
+      "inputModes": ["text"],
+      "outputModes": ["text"],
+      "maxTokens": 2048
+    }
+  ],
+  "certification": {
+    "level": "verified",
+    "issuer": "NANDA Demo Authority",
+    "issuanceDate": "2025-06-09T00:00:00Z",
+    "expirationDate": "2026-06-09T00:00:00Z"
+  },
+  "ttl": 3600
+}

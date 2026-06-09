@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  index_server:
+    build:
+      context: .
+      dockerfile: index_server/Dockerfile
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./keys:/app/keys
+    environment:
+      - KEYS_DIR=/app/keys
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5001/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  agent_facts_server:
+    build:
+      context: .
+      dockerfile: agent_facts_server/Dockerfile
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./keys:/app/keys
+    environment:
+      - KEYS_DIR=/app/keys
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5002/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    depends_on:
+      index_server:
+        condition: service_healthy
+      agent_facts_server:
+        condition: service_healthy
+    volumes:
+      - ./keys:/app/keys
+    environment:
+      - INDEX_SERVER_URL=http://index_server:5001
+      - FACTS_SERVER_URL=http://agent_facts_server:5002
+      - KEYS_DIR=/app/keys

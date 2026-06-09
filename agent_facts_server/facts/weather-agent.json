@@ -1,0 +1,56 @@
+{
+  "@context": "https://nanda.agenticnet.org/schemas/agent-facts/v1",
+  "id": "nanda:agent-weather-001",
+  "agent_name": "urn:agent:nanda:weather-agent",
+  "label": "Weather Agent",
+  "description": "Real-time weather lookup and forecast agent",
+  "version": "1.0.0",
+  "provider": {
+    "name": "NANDA Demo",
+    "url": "http://localhost:5002"
+  },
+  "endpoints": {
+    "static": ["http://localhost:5002/agents/weather-agent/invoke"]
+  },
+  "capabilities": {
+    "modalities": ["text"],
+    "streaming": false,
+    "batch": false,
+    "authentication": {
+      "methods": ["none"]
+    }
+  },
+  "skills": [
+    {
+      "id": "weather-lookup",
+      "description": "Returns current conditions and multi-day forecast for a given location",
+      "inputModes": ["text"],
+      "outputModes": ["text"],
+      "inputSchema": {
+        "location": "string"
+      },
+      "outputSchema": {
+        "forecast": "string"
+      }
+    },
+    {
+      "id": "geo-routing",
+      "description": "Resolves GPS coordinates to the nearest weather station",
+      "inputModes": ["text"],
+      "outputModes": ["text"],
+      "inputSchema": {
+        "coordinates": { "lat": "number", "lon": "number" }
+      },
+      "outputSchema": {
+        "nearest_station": "string"
+      }
+    }
+  ],
+  "certification": {
+    "level": "verified",
+    "issuer": "NANDA Demo Authority",
+    "issuanceDate": "2025-06-09T00:00:00Z",
+    "expirationDate": "2026-06-09T00:00:00Z"
+  },
+  "ttl": 3600
+}
